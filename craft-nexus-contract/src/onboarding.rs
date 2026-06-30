@@ -9,7 +9,6 @@ use soroban_sdk::{
     contract, contracterror, contractimpl, contracttype, token, Address, Bytes, Env, Map, String,
     Symbol, TryFromVal, Val, Vec,
 };
-use alloc::string::ToString;
 extern crate alloc;
 
 /// Standard TTL threshold for persistent storage (approx 14 hours at 5s ledger)
@@ -1208,12 +1207,7 @@ impl OnboardingContract {
         Self::extend_persistent(env, &count_key);
     }
 
-    fn collect_username_change_fee(
-        env: &Env,
-        user: &Address,
-        config: &OnboardingConfig,
-        snapshotted_token: Option<Address>,
-    ) {
+    fn collect_username_change_fee(env: &Env, user: &Address, config: &OnboardingConfig) {
         let fee_amount: i128 = env
             .storage()
             .persistent()
@@ -1226,16 +1220,8 @@ impl OnboardingContract {
 
         Self::extend_persistent(env, &DataKey::UsernameChangeFee);
 
-        let fee_token = match snapshotted_token {
-            Some(ref token) => {
-                let current = Self::read_username_fee_token(env)
-                    .unwrap_or_else(|| env.panic_with_error(Error::NotInitialized));
-                assert_eq!(current, *token, "Fee token changed mid-call");
-                current
-            }
-            None => Self::read_username_fee_token(env)
-                .unwrap_or_else(|| env.panic_with_error(Error::NotInitialized)),
-        };
+        let fee_token = Self::read_username_fee_token(env)
+            .unwrap_or_else(|| env.panic_with_error(Error::NotInitialized));
         let fee_wallet = Self::read_username_fee_wallet(env, config);
 
         let token_client = token::Client::new(env, &fee_token);
@@ -2160,8 +2146,8 @@ impl OnboardingContract {
             env.panic_with_error(Error::ProfileDeactivated);
         }
 
-        let username_str = String::from_str(&env, profile.username.to_string().as_ref());
-        let normalized = normalize_username(&env, &username_str);
+        let username_string = String::from_str(&env, profile.username.to_string().as_ref());
+        let normalized = normalize_username(&env, &username_string);
         if normalized == String::from_str(&env, "admin") {
             env.panic_with_error(Error::Unauthorized);
         }
@@ -2266,8 +2252,8 @@ impl OnboardingContract {
         }
 
         // Re-claim username — fail if another user took it while deactivated
-        let username_str = String::from_str(&env, profile.username.to_string().as_ref());
-        let normalized = normalize_username(&env, &username_str);
+        let username_string = String::from_str(&env, profile.username.to_string().as_ref());
+        let normalized = normalize_username(&env, &username_string);
         if env
             .storage()
             .persistent()
@@ -3356,9 +3342,6 @@ impl OnboardingContract {
             .unwrap_or_else(|| env.panic_with_error(Error::NotInitialized));
         Self::extend_persistent(&env, &DataKey::Config);
 
-        // Snapshot fee token before any state changes (CEI safety)
-        let snapshotted_fee_token = Self::read_username_fee_token(&env);
-
         // Get current user profile
         let profile_key = DataKey::UserProfile(user.clone());
         let mut profile: UserProfile = env
@@ -3461,7 +3444,7 @@ impl OnboardingContract {
             .publish((Symbol::new(&env, "UsernameChanged"),), &user);
 
         // Interaction (CEI pattern: external transfer is the last step)
-        Self::collect_username_change_fee(&env, &user, &config, snapshotted_fee_token);
+        Self::collect_username_change_fee(&env, &user, &config);
 
         profile
     }

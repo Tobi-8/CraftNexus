@@ -1,7 +1,0 @@
-{
-  "struct": "PlatformUnpausedEvent",
-  "fields": [
-    {"name": "initiator", "type": "Address"},
-    {"name": "timestamp", "type": "u64"}
-  ]
-}
