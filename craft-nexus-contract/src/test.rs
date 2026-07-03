@@ -3052,11 +3052,7 @@ fn test_partial_refund_negotiation_flow() {
     client.create_escrow(&buyer, &seller, &token_id, &1000, &1, &None);
 
     // 1. Dispute the escrow
-    client.dispute_escrow(
-        &1,
-        &Symbol::new(&env, "Partial_refund_requested"),
-        &buyer,
-    );
+    client.dispute_escrow(&1, &Symbol::new(&env, "Partial_refund_requested"), &buyer);
 
     // 2. Buyer proposes a 300 refund
     client.propose_partial_refund(&1, &300, &buyer);
@@ -3083,11 +3079,7 @@ fn test_propose_partial_refund_by_seller() {
     token_admin.mint(&buyer, &1000);
     client.create_escrow(&buyer, &seller, &token_id, &1000, &1, &None);
 
-    client.dispute_escrow(
-        &1,
-        &Symbol::new(&env, "Partial_refund_offered"),
-        &seller,
-    );
+    client.dispute_escrow(&1, &Symbol::new(&env, "Partial_refund_offered"), &seller);
 
     // Seller proposes a 400 refund
     client.propose_partial_refund(&1, &400, &seller);

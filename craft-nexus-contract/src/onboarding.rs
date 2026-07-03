@@ -3,13 +3,11 @@
 //! Handles user registration (onboarding), role assignments, username configuration,
 //! profile management, and verification processes for buyers and artisans on the CraftNexus platform.
 
-
-
+use alloc::string::ToString;
 use soroban_sdk::{
     contract, contracterror, contractimpl, contracttype, token, Address, Bytes, Env, Map, String,
     Symbol, TryFromVal, Val, Vec,
 };
-use alloc::string::ToString;
 extern crate alloc;
 
 /// Standard TTL threshold for persistent storage (approx 14 hours at 5s ledger)
@@ -988,15 +986,13 @@ impl OnboardingContract {
     ///
     /// Labels are stable API surface for indexers consuming
     /// [`VerificationEntry::action`] via [`OnboardingContract::get_verification_history`].
-   fn verification_action_to_string(env: &Env, action: VerificationActionCode) -> Symbol {
+    fn verification_action_to_string(env: &Env, action: VerificationActionCode) -> Symbol {
         match action {
             VerificationActionCode::Requested => Symbol::new(env, "requested"),
             VerificationActionCode::Approved => Symbol::new(env, "approved"),
             VerificationActionCode::Rejected => Symbol::new(env, "rejected"),
             VerificationActionCode::AutoVerified => Symbol::new(env, "auto_verified"),
-            VerificationActionCode::UsernameChangedRevoked => {
-                Symbol::new(env, "username_revoked")
-            }
+            VerificationActionCode::UsernameChangedRevoked => Symbol::new(env, "username_revoked"),
         }
     }
 
@@ -1242,7 +1238,7 @@ impl OnboardingContract {
         token_client.transfer(user, &fee_wallet, &fee_amount);
     }
 
-   fn try_get_user_profile(env: &Env, user: Address) -> Option<UserProfile> {
+    fn try_get_user_profile(env: &Env, user: Address) -> Option<UserProfile> {
         let key = DataKey::UserProfile(user.clone());
         let stored: Val = env.storage().persistent().get(&key)?;
         let map = Map::<Symbol, Val>::try_from_val(env, &stored).expect("");
@@ -1253,16 +1249,16 @@ impl OnboardingContract {
             if profile.version < CURRENT_USER_PROFILE_VERSION {
                 return Some(Self::upgrade_user_profile(env, user, profile));
             }
-            
+
             // ---> ADD THIS LINE TO FIX THE TTL BUG <---
-            Self::extend_persistent(env, &key); 
-            
+            Self::extend_persistent(env, &key);
+
             return Some(profile);
         }
 
         let legacy =
             LegacyUserProfile::try_from_val(env, &stored).expect("User profile storage corrupted");
-        
+
         // Migrate Option<String> to Option<Bytes>
         let optimized_cid = legacy.portfolio_cid.map(|cid_str| {
             let mut cid_bytes = Bytes::new(env);
@@ -1610,7 +1606,7 @@ impl OnboardingContract {
 
         // Normalize the username (lowercase + trim whitespace)
         let normalized = normalize_username(&env, &username);
-        
+
         // Convert to Symbol for optimized storage
         let username_len = core::cmp::min(normalized.len() as usize, 32);
         let mut user_buf = [0u8; 32];
@@ -2752,7 +2748,11 @@ impl OnboardingContract {
         }
 
         let key = DataKey::ActiveContractCount(user.clone());
-        let current = env.storage().persistent().get::<_, u32>(&key).unwrap_or(0u32);
+        let current = env
+            .storage()
+            .persistent()
+            .get::<_, u32>(&key)
+            .unwrap_or(0u32);
         if env.storage().persistent().has(&key) {
             Self::extend_persistent(&env, &key);
         }
@@ -3271,17 +3271,8 @@ impl OnboardingContract {
     pub fn get_user_reputation(env: Env, address: Address) -> (u32, u32) {
         // Issue #426/#434: require auth to prevent unauthorized access to sensitive trade data
         address.require_auth();
-        let key = DataKey::UserProfile(address.clone());
-        match env
-            .storage()
-            .persistent()
-            .get::<DataKey, UserProfile>(&key)
-        {
-            Some(profile) => {
-                // Issue #423/#435: extend TTL on read to prevent storage expiry
-                Self::extend_persistent(&env, &key);
-                (profile.successful_trades, profile.disputed_trades)
-            }
+        match Self::try_get_user_profile(&env, address) {
+            Some(profile) => (profile.successful_trades, profile.disputed_trades),
             None => (0, 0),
         }
     }
@@ -3410,7 +3401,9 @@ impl OnboardingContract {
         // Atomically remove old username mapping and add new one
         let old_username = profile.username.clone();
         let old_string = String::from_str(&env, old_username.to_string().as_ref());
-        env.storage().persistent().remove(&DataKey::Username(old_string));
+        env.storage()
+            .persistent()
+            .remove(&DataKey::Username(old_string));
 
         // Store new username → address mapping
         env.storage()

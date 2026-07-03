@@ -1,5 +1,5 @@
-use super::*;
 use super::Error;
+use super::*;
 use soroban_sdk::{testutils::Address as _, token, Address, Bytes, Env, String};
 
 fn string_to_bytes(env: &Env, s: &soroban_sdk::String) -> Bytes {
@@ -850,11 +850,7 @@ fn test_admin_clear_verification_request_no_pending() {
 
     let (client, _admin) = setup_test(&env);
     let user = Address::generate(&env);
-    client.onboard_user(
-        &user,
-        &String::from_str(&env, "no_req"),
-        &UserRole::Artisan,
-    );
+    client.onboard_user(&user, &String::from_str(&env, "no_req"), &UserRole::Artisan);
 
     let was_pending = client.admin_clear_verification_request(&user);
     assert!(!was_pending);
@@ -870,11 +866,7 @@ fn test_admin_clear_verification_request_unauthorized() {
 
     let (client, _admin) = setup_test(&env);
     let user = Address::generate(&env);
-    client.onboard_user(
-        &user,
-        &String::from_str(&env, "victim"),
-        &UserRole::Artisan,
-    );
+    client.onboard_user(&user, &String::from_str(&env, "victim"), &UserRole::Artisan);
     client.request_verification(&user);
 
     // Drop all mocked authorizations so the admin's require_auth() fails.
@@ -1243,10 +1235,8 @@ fn test_change_username_with_special_characters() {
     let updated = client.change_username(&user, &new_username);
 
     // Should be normalized with underscores
-    assert_eq!(
-        updated.username,
-        Symbol::new(&env, "new_user_name_123")
-    );}
+    assert_eq!(updated.username, Symbol::new(&env, "new_user_name_123"));
+}
 
 #[test]
 fn test_change_username_preserves_other_fields() {
@@ -1825,7 +1815,11 @@ fn test_update_active_contracts_underflow_panics() {
 
     let (client, admin) = setup_test(&env);
     let user = Address::generate(&env);
-    client.onboard_user(&user, &String::from_str(&env, "underflow"), &UserRole::Buyer);
+    client.onboard_user(
+        &user,
+        &String::from_str(&env, "underflow"),
+        &UserRole::Buyer,
+    );
 
     let escrow_id = env.register_contract(None, crate::CraftNexusContract);
     client.set_escrow_contract(&escrow_id);
@@ -1934,7 +1928,6 @@ fn test_is_verification_pending_unauthorized() {
     client.is_verification_pending(&user);
 }
 
-
 // ── Issue #470: [SECURITY] Endpoint #69 – set_moderator ─────────────────────
 
 /// Issue #470 — set_moderator must record the admin auth signal on success.
@@ -1945,13 +1938,20 @@ fn test_set_moderator_records_admin_auth() {
 
     let (client, admin) = setup_test(&env);
     let user = Address::generate(&env);
-    client.onboard_user(&user, &soroban_sdk::String::from_str(&env, "promotee"), &UserRole::Artisan);
+    client.onboard_user(
+        &user,
+        &soroban_sdk::String::from_str(&env, "promotee"),
+        &UserRole::Artisan,
+    );
 
     client.set_moderator(&user);
 
     let auths = env.auths();
     let admin_auth = auths.iter().find(|(addr, _)| addr == &admin);
-    assert!(admin_auth.is_some(), "admin auth must be recorded for set_moderator");
+    assert!(
+        admin_auth.is_some(),
+        "admin auth must be recorded for set_moderator"
+    );
 
     let profile = client.get_user(&user);
     assert_eq!(profile.role, UserRole::Moderator);
@@ -1967,7 +1967,11 @@ fn test_set_moderator_non_admin_rejected() {
     let (client, _admin) = setup_test(&env);
     let attacker = Address::generate(&env);
     let target = Address::generate(&env);
-    client.onboard_user(&target, &soroban_sdk::String::from_str(&env, "victim"), &UserRole::Buyer);
+    client.onboard_user(
+        &target,
+        &soroban_sdk::String::from_str(&env, "victim"),
+        &UserRole::Buyer,
+    );
 
     // Strip all mocked auths so only a non-admin caller could sign.
     env.set_auths(&[]);
@@ -2032,16 +2036,26 @@ fn test_get_verification_queue_returns_pending_users() {
     let (client, admin) = setup_test(&env);
 
     let user = Address::generate(&env);
-    client.onboard_user(&user, &soroban_sdk::String::from_str(&env, "queueuser"), &UserRole::Artisan);
+    client.onboard_user(
+        &user,
+        &soroban_sdk::String::from_str(&env, "queueuser"),
+        &UserRole::Artisan,
+    );
     client.request_verification(&user);
 
     let queue = client.get_verification_queue();
 
-    assert!(queue.contains(&user), "requesting user must appear in the verification queue");
+    assert!(
+        queue.contains(&user),
+        "requesting user must appear in the verification queue"
+    );
 
     let auths = env.auths();
     let admin_auth = auths.iter().find(|(addr, _)| addr == &admin);
-    assert!(admin_auth.is_some(), "admin auth must be recorded for get_verification_queue");
+    assert!(
+        admin_auth.is_some(),
+        "admin auth must be recorded for get_verification_queue"
+    );
 }
 
 // ── Issue #430: [SECURITY] Endpoint #29 – get_user_metrics ───────────────────
