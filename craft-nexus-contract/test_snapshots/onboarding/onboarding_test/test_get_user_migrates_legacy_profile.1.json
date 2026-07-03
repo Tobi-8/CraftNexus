@@ -25,7 +25,6 @@
     ],
     [],
     [],
-    [],
     []
   ],
   "ledger": {
@@ -150,51 +149,6 @@
             "key": {
               "vec": [
                 {
-                  "symbol": "UserPortfolio"
-                },
-                {
-                  "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M"
-                }
-              ]
-            },
-            "durability": "persistent"
-          }
-        },
-        [
-          {
-            "last_modified_ledger_seq": 0,
-            "data": {
-              "contract_data": {
-                "ext": "v0",
-                "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM",
-                "key": {
-                  "vec": [
-                    {
-                      "symbol": "UserPortfolio"
-                    },
-                    {
-                      "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M"
-                    }
-                  ]
-                },
-                "durability": "persistent",
-                "val": {
-                  "bytes": "516d597741504a7a7635435a736e4136323573335866326e656d7459675070486457457a37396f6a576e50626447"
-                }
-              }
-            },
-            "ext": "v0"
-          },
-          518400
-        ]
-      ],
-      [
-        {
-          "contract_data": {
-            "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM",
-            "key": {
-              "vec": [
-                {
                   "symbol": "UserProfile"
                 },
                 {
@@ -251,6 +205,12 @@
                     },
                     {
                       "key": {
+                        "symbol": "portfolio_cid"
+                      },
+                      "val": "void"
+                    },
+                    {
+                      "key": {
                         "symbol": "registered_at"
                       },
                       "val": {
@@ -294,7 +254,7 @@
                         "symbol": "version"
                       },
                       "val": {
-                        "u32": 5
+                        "u32": 4
                       }
                     }
                   ]
@@ -369,6 +329,12 @@
                     },
                     {
                       "key": {
+                        "symbol": "portfolio_cid"
+                      },
+                      "val": "void"
+                    },
+                    {
+                      "key": {
                         "symbol": "registered_at"
                       },
                       "val": {
@@ -412,7 +378,7 @@
                         "symbol": "version"
                       },
                       "val": {
-                        "u32": 5
+                        "u32": 4
                       }
                     }
                   ]
@@ -744,9 +710,7 @@
                   "key": {
                     "symbol": "portfolio_cid"
                   },
-                  "val": {
-                    "bytes": "516d597741504a7a7635435a736e4136323573335866326e656d7459675070486457457a37396f6a576e50626447"
-                  }
+                  "val": "void"
                 },
                 {
                   "key": {
@@ -793,7 +757,7 @@
                     "symbol": "version"
                   },
                   "val": {
-                    "u32": 5
+                    "u32": 4
                   }
                 }
               ]

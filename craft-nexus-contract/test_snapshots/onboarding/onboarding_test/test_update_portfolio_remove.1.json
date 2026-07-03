@@ -292,6 +292,12 @@
                     },
                     {
                       "key": {
+                        "symbol": "portfolio_cid"
+                      },
+                      "val": "void"
+                    },
+                    {
+                      "key": {
                         "symbol": "registered_at"
                       },
                       "val": {
@@ -335,7 +341,7 @@
                         "symbol": "version"
                       },
                       "val": {
-                        "u32": 5
+                        "u32": 4
                       }
                     }
                   ]
@@ -410,6 +416,12 @@
                     },
                     {
                       "key": {
+                        "symbol": "portfolio_cid"
+                      },
+                      "val": "void"
+                    },
+                    {
+                      "key": {
                         "symbol": "registered_at"
                       },
                       "val": {
@@ -453,7 +465,7 @@
                         "symbol": "version"
                       },
                       "val": {
-                        "u32": 5
+                        "u32": 4
                       }
                     }
                   ]
@@ -1064,7 +1076,7 @@
                     "symbol": "version"
                   },
                   "val": {
-                    "u32": 5
+                    "u32": 4
                   }
                 }
               ]
@@ -1221,7 +1233,7 @@
                     "symbol": "version"
                   },
                   "val": {
-                    "u32": 5
+                    "u32": 4
                   }
                 }
               ]
@@ -1374,7 +1386,7 @@
                     "symbol": "version"
                   },
                   "val": {
-                    "u32": 5
+                    "u32": 4
                   }
                 }
               ]

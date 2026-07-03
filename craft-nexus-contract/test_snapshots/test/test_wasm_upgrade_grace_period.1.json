@@ -108,9 +108,6 @@
               "function_name": "propose_upgrade_wasm",
               "args": [
                 {
-                  "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAK3IM"
-                },
-                {
                   "bytes": "0101010101010101010101010101010101010101010101010101010101010101"
                 }
               ]
@@ -1494,14 +1491,7 @@
               }
             ],
             "data": {
-              "vec": [
-                {
-                  "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAK3IM"
-                },
-                {
-                  "bytes": "0101010101010101010101010101010101010101010101010101010101010101"
-                }
-              ]
+              "bytes": "0101010101010101010101010101010101010101010101010101010101010101"
             }
           }
         }
